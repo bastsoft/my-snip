@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>BTR</title>
+</head>
+<body>
+call context on me
+<div class="testDiv">test div</div>
+<script>
+    var el = document.createElement('script');
+    el.onload = function () {
+        btr.loadGist({
+            url: 'https://github.yandex-team.ru/gist/',
+            id: 'a10f513b9618ca7d1f0e',
+            file: 'testSnippet'
+        });
+    };
+    document.head.appendChild(el).src = 'btr.js';
+</script>
+
+</body>
+</html>
+
