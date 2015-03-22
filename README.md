@@ -5,13 +5,9 @@
 ## Installation
 
 ```js
-javascript:(function(){
-    var el=document.createElement('script');
-    el.onload = function(){ush.gist().getLoadGist('GIST_ID', function(getThisGist){
-        getThisGist('GIST_FILE')();
-    })};
-    document.head.appendChild(el).src='https://cdn.rawgit.com/bastsoft/UserSHelper/b8df7369da24c2a26de3178e2b10990190f547d4/ush.min.js';
-})();
+javascript:(function(){var el = document.createElement('script');
+    el.onload = function () { btr.loadGist({ id: 'GIST_ID', file: 'GIST_FILE' });};
+document.head.appendChild(el).src = 'btr.js';})();
 ```
 
 see tasks example:

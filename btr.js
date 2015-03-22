@@ -357,7 +357,7 @@ function _getFilesFromHTML(htmlData) {
     var files = {};
     var el = document.createElement('div');
     var getText = function (dataHTML) {
-        el.innerHTML = dataHTML.replace(/<\/div>/g, '\n</div>');
+        el.innerHTML = dataHTML.replace(/<\/div>/g, '</div>\n');
         return el.textContent.replace(/\n\n/g, '');
     };
 
