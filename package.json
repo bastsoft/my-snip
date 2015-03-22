@@ -1,0 +1,28 @@
+{
+  "name": "btr",
+  "version": "0.0.0",
+  "description": "browser task runner",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./node_modules/gulp/bin/gulp.js",
+    "rebuild": "./node_modules/gulp/bin/gulp.js build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bastsoft/btr.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bastsoft/btr/issues"
+  },
+  "homepage": "https://github.com/bastsoft/btr",
+  "devDependencies": {
+    "browserify": "^9.0.3",
+    "gulp": "^3.8.11",
+    "gulp-connect": "^2.2.0",
+    "opn": "^1.0.1",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
