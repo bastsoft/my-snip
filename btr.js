@@ -190,9 +190,12 @@ function setOnContextMenu(menu) {
 }
 
 btr.onContextMenuClick = function (e, menu) {
-    menu.style.left = e.clientX + window.pageXOffset + 'px';
-    menu.style.top = e.clientY + window.pageYOffset + 'px';
-    menu.style.display = 'block';
+    if (menu && menu.style) {
+        menu.style.left = e.clientX + window.pageXOffset + 'px';
+        menu.style.top = e.clientY + window.pageYOffset + 'px';
+        menu.style.display = 'block';
+    }
+
     e.stopPropagation();
 
     return false;
