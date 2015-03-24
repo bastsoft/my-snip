@@ -118,6 +118,8 @@ var createStyleContexMenu = function () {
         background-color: #eee;\
         margin:0;\
         padding: .5em 0;\
+        font-family: monospace;\
+        font-size: 14px;\
     }\
     menu div{\
         height:1em\
@@ -150,17 +152,29 @@ var createStyleContexMenu = function () {
     document.querySelectorAll('menu[type="context"]').forEach(function (menuRoot) {
         setOnContextMenu(menuRoot);
         menuRoot.querySelectorAll('menuitem').forEach(function (menuitem) {
-            menuitem.innerHTML = menuitem.getAttribute('label');
+            var label = menuitem.getAttribute('label');
+
+            addMaxWidth(menuitem.parentElement, label.length);
+            menuitem.innerHTML = label;
         });
         menuRoot.querySelectorAll('menu').forEach(function (menu) {
             var menuitem = document.createElement('menuitem');
             var div = document.createElement('div');
+            var label = menu.getAttribute('label');
 
-            div.appendChild(menuitem).innerHTML = menu.getAttribute('label');
+            addMaxWidth(menu.parentElement, label.length);
+            div.appendChild(menuitem).innerHTML = label;
             div.wrap(menu);
         });
     });
 };
+
+function addMaxWidth(parent, newLength) {
+    var oldLength = Number(parent.style.width.replace('px', ''));
+
+    newLength = (newLength * 9) + 35;
+    parent.style.width = ((newLength > oldLength) ? newLength : oldLength) + 'px';
+}
 
 function setOnContextMenu(menu) {
     var menuId = menu.getAttribute('id');
@@ -183,7 +197,6 @@ btr.onContextMenuClick = function (e, menu) {
 
     return false;
 };
-
 
 module.exports = utils.debounce(100, function () {
     if (!/Firefox/.test(window.navigator.userAgent)) {
