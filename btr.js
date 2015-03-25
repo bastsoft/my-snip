@@ -6,18 +6,20 @@ var load = require('./module/load.js');
 var gist = require('./module/gist.js');
 var contextMenu = require('./module/contextMenu.js');
 var relay = require('./module/relay.js');
+var tumbler = require('./module/tumbler.js');
 
 utils.extend(window.btr, load);
 utils.extend(window.btr, gist);
 utils.extend(window.btr, contextMenu);
 utils.extend(window.btr, relay);
+utils.extend(window.btr, tumbler);
 
 window.btr.save = function () {
     utils.saveToJsonFile(btr.config.gists, 'save.json');
 };
 window.btr.newConfig = config;
 
-},{"./module/config.js":2,"./module/contextMenu.js":3,"./module/gist.js":5,"./module/load.js":6,"./module/relay.js":7,"./module/utils.js":8}],2:[function(require,module,exports){
+},{"./module/config.js":2,"./module/contextMenu.js":3,"./module/gist.js":5,"./module/load.js":6,"./module/relay.js":7,"./module/tumbler.js":8,"./module/utils.js":9}],2:[function(require,module,exports){
 /**
  * @gists {object} btr.save() data
  */
@@ -32,7 +34,7 @@ module.exports = function (newConfig) {
     return window.btr.config;
 };
 
-},{"./utils.js":8}],3:[function(require,module,exports){
+},{"./utils.js":9}],3:[function(require,module,exports){
 var utils = require('./utils.js');
 var contextMenuPolyfill = require('./contextMenuPolyfill.js');
 
@@ -83,7 +85,7 @@ module.exports = {
     contextMenu: contextMenu
 };
 
-},{"./contextMenuPolyfill.js":4,"./utils.js":8}],4:[function(require,module,exports){
+},{"./contextMenuPolyfill.js":4,"./utils.js":9}],4:[function(require,module,exports){
 var utils = require('./utils.js');
 
 NodeList.prototype.forEach = Array.prototype.forEach;
@@ -207,7 +209,7 @@ module.exports = utils.debounce(100, function () {
     }
 });
 
-},{"./utils.js":8}],5:[function(require,module,exports){
+},{"./utils.js":9}],5:[function(require,module,exports){
 var load = require('./load.js');
 var newConfig = require('./config.js');
 var config = newConfig();
@@ -400,7 +402,7 @@ module.exports = {
     loadJsonP: loadJsonP
 };
 
-},{"./utils.js":8}],7:[function(require,module,exports){
+},{"./utils.js":9}],7:[function(require,module,exports){
 var relay = function (key, states) {
     var obj = {};
 
@@ -466,6 +468,46 @@ module.exports = {
 };
 
 },{}],8:[function(require,module,exports){
+var tumbler = function (states) {
+    var obj = {};
+
+    Object.keys(states).forEach(function (stateKey) {
+        var mark = localStorage[stateKey] ? '☑ ' : '☐ ';
+
+        obj[mark + stateKey] = function () {
+            localStorage[stateKey] = localStorage[stateKey] ? '' : 'yes';
+
+            if (localStorage[stateKey]) {
+                states[stateKey]();
+            }
+        };
+
+        if (localStorage[stateKey]) {
+            states[stateKey]();
+        }
+    });
+
+    obj['on all'] = function () {
+        Object.keys(states).forEach(function (stateKey) {
+            localStorage[stateKey] = 'yes';
+            states[stateKey]();
+        });
+    };
+
+    obj['off all'] = function () {
+        Object.keys(states).forEach(function (stateKey) {
+            localStorage[stateKey] = '';
+        });
+    };
+
+    return obj;
+};
+
+module.exports = {
+    tumbler: tumbler
+};
+
+},{}],9:[function(require,module,exports){
 var uniqId = function () {
     return String.fromCharCode(65 + Math.floor(Math.random() * 26)) + Date.now();
 };
