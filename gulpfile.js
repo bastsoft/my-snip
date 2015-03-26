@@ -1,8 +1,9 @@
 var gulp = require('./gulp')([
     'browserify',
     'webserver',
-    'openbrowser'
+    'openbrowser',
+    'compress'
 ]);
 
-gulp.task('build', ['browserify']);
+gulp.task('build', ['browserify', 'compress']);
 gulp.task('default', ['build', 'webserver', 'openbrowser']);
