@@ -39,18 +39,30 @@ var utils = require('./utils.js');
 var contextMenuPolyfill = require('./contextMenuPolyfill.js');
 
 var contextMenu = function (targetSelector, obj) {
+    if (typeof targetSelector === 'object') {
+        targetSelector.forEach(function (target) {
+            _createMenu(target, obj);
+        });
+    } else {
+        _createMenu(targetSelector, obj);
+    }
+};
+
+function _createMenu(targetSelector, obj) {
     var menu = _createMenuEl(obj);
     var id = utils.uniqId();
-    var target = document.querySelector(targetSelector);
+    var targets = document.querySelectorAll(targetSelector);
 
     menu.setAttribute('type', 'context');
     menu.setAttribute('id', id);
-    target.setAttribute('contextmenu', id);
-    target.appendChild(menu);
-    contextMenuPolyfill();
 
-    return menu;
-};
+    targets.forEach(function (target) {
+        target.setAttribute('contextmenu', id);
+        (target.parentNode ? target.parentNode : target).appendChild(menu);
+    });
+
+    contextMenuPolyfill();
+}
 
 function _createMenuEl(items) {
     var menu = document.createElement('menu');
