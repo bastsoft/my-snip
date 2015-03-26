@@ -9,7 +9,7 @@ var contextMenu = function (targetSelector, obj) {
     menu.setAttribute('type', 'context');
     menu.setAttribute('id', id);
     target.setAttribute('contextmenu', id);
-    target.appendChild(menu);
+    (target.parentNode ? target.parentNode : target).appendChild(menu);
     contextMenuPolyfill();
 
     return menu;
