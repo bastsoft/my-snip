@@ -7,7 +7,7 @@
 ```js
 javascript:(function(){var el = document.createElement('script');
     el.onload = function () { btr.loadGist({ id: 'GIST_ID', file: 'GIST_FILE' });};
-document.head.appendChild(el).src = 'https://cdn.rawgit.com/bastsoft/btr/v0.0.1/btr-min.js';})();
+document.head.appendChild(el).src = 'https://cdn.rawgit.com/bastsoft/btr/2d47afcef3d83f5501bd3c98671b8fbca260f0ba/btr-min.js';})();
 ```
 
 see tasks example:

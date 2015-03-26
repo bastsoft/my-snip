@@ -58,7 +58,7 @@ function _createMenu(targetSelector, obj) {
 
     targets.forEach(function (target) {
         target.setAttribute('contextmenu', id);
-        (target.parentNode ? target.parentNode : target).appendChild(menu);
+        document.body.appendChild(menu);
     });
 
     contextMenuPolyfill();
