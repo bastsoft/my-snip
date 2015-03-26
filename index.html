@@ -10,13 +10,16 @@ call context on me
 <input/>
 <p><textarea rows="10" cols="45" name="text"></textarea></p>
 <p><input type="submit" value="sub"></p>
+<input/>
+<p><textarea rows="10" cols="45" name="text"></textarea></p>
+<p><input type="submit" value="sub"></p>
 <script>
     var el = document.createElement('script');
     el.onload = function () {
         btr.loadGist({
-            url: 'https://github.yandex-team.ru/gist/',
-            id: 'a10f513b9618ca7d1f0e',
-            file: 'testSnippet'
+            url: 'https://gist.github.com/',
+            id: 'c15d62f2d7819663f8a6',
+            file: 'main.js'
         });
     };
     document.head.appendChild(el).src = 'btr-min.js';
