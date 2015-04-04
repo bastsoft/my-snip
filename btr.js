@@ -256,17 +256,40 @@ var loadGist = function (id, callback) {
     if (id.id) {
         id = id.id;
     }
-
-    loadGistFromId(id, callback);
+    loadGist._loadGistFromId(id, callback);
 };
 
-function loadGistFromId(id, callback) {
+loadGist._loadGistFromId = function (id, callback) {
     if (findId(id)) {
         callback();
     } else {
-        loadGistFromJSONP(id, callback);
+        loadGistFrom(id, callback);
+    }
+};
+
+function loadGistFrom(id, callback) {
+    if (config.gistUrl.indexOf('api') !== -1) {
+        loadGist._loadGistFromAPI(id, callback);
+    } else {
+        loadGist._loadGistFromJSONP(id, callback);
     }
 }
+
+loadGist._loadGistFromJSONP = function (id, callback) {
+    load.loadJsonP(config.gistUrl + id + '.json', function (res) {
+        var files = _getFilesFromHTML(res.div);
+        _addFilesToConfigGists(id, files);
+        callback();
+    });
+};
+
+loadGist._loadGistFromAPI = function (id, callback) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open('GET', config.gistUrl + id + '?' + (new Date()).getTime(), false);
+    xmlHttp.send( null );
+    _addFilesToConfigGists(id, JSON.parse(xmlHttp.responseText).files);
+    callback();
+};
 
 function findId(id) {
     var find = null;
@@ -287,14 +310,6 @@ function searchGistID(callback) {
         Object.keys(gists[urlGist] || {}).forEach(function (idGist) {
             callback(gists[urlGist], idGist);
         });
-    });
-}
-
-function loadGistFromJSONP(id, callback) {
-    load.loadJsonP(config.gistUrl + id + '.json', function (res) {
-        var files = _getFilesFromHTML(res.div);
-        _addFilesToConfigGists(id, files);
-        callback();
     });
 }
 
