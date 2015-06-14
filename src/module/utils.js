@@ -1,5 +1,5 @@
 var uniqId = function () {
-    return String.fromCharCode(65 + Math.floor(Math.random() * 26)) + Date.now();
+    return String.fromCharCode(65 + Math.floor(Math.random() * 26)) + (+(new Date));
 };
 
 var saveToJsonFile = function (data, filename) {
@@ -30,6 +30,48 @@ var debounce = function (ms, callback) {
         timeout = setTimeout(callback, ms);
     };
 };
+
+if (!Function.prototype.bind) {
+    Function.prototype.bind = function bind(scope) {
+        var
+            callback = this,
+            prepend = Array.prototype.slice.call(arguments, 1),
+            Constructor = function () {
+            },
+            bound = function () {
+                return callback.apply(
+                    this instanceof Constructor && scope ? this : scope,
+                    prepend.concat(Array.prototype.slice.call(arguments, 0))
+                );
+            };
+
+        Constructor.prototype = bound.prototype = callback.prototype;
+
+        return bound;
+    };
+}
+
+if (typeof Object !== "undefined" && !Object.keys) {
+    Object.keys = function keys(object) {
+        var buffer = [], key;
+
+        for (key in object) {
+            if (Object.prototype.hasOwnProperty.call(object, key)) {
+                buffer.push(key);
+            }
+        }
+
+        return buffer;
+    };
+}
+
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function forEach(callback, scope) {
+        for (var array = this, index = 0, length = array.length; index < length; ++index) {
+            callback.call(scope || window, array[index], index, array);
+        }
+    };
+}
 
 module.exports = {
     uniqId: uniqId,

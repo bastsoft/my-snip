@@ -56,7 +56,7 @@ function _createMenu(targetSelector, obj) {
     menu.setAttribute('type', 'context');
     menu.setAttribute('id', id);
 
-    targets.forEach(function (target) {
+    Array.prototype.forEach.call(targets, function (target) {
         target.setAttribute('contextmenu', id);
         document.body.appendChild(menu);
     });
@@ -88,7 +88,12 @@ function _createMenuItem(label, callBack) {
     var menuitem = document.createElement('menuitem');
 
     menuitem.setAttribute('label', label);
-    menuitem.addEventListener('click', callBack, false);
+
+    if (document.addEventListener) {
+        menuitem.addEventListener("click", callBack, false);
+    } else {
+        menuitem.attachEvent("onclick", callBack);
+    }
 
     return menuitem;
 }
@@ -100,9 +105,7 @@ module.exports = {
 },{"./contextMenuPolyfill.js":4,"./utils.js":9}],4:[function(require,module,exports){
 var utils = require('./utils.js');
 
-NodeList.prototype.forEach = Array.prototype.forEach;
-
-HTMLElement.prototype.wrap = function (elms) {
+Element.prototype.wrap = function (elms) {
     if (!elms.length) {
         elms = [elms];
     }
@@ -124,7 +127,10 @@ HTMLElement.prototype.wrap = function (elms) {
 };
 
 var createStyleContexMenu = function () {
-    document.getElementsByTagName('head')[0].appendChild(document.createElement('style')).innerHTML = ' \
+    var style = document.createElement('style');
+    style.type = 'text/css';
+
+    var stylHtml = ' \
     menu {\
         z-index: 2147483000;\
         position:absolute;\
@@ -136,7 +142,7 @@ var createStyleContexMenu = function () {
         font-size: 14px;\
     }\
     menu div{\
-        height:1em\
+        height:1em;\
     }\
     menuitem:hover{\
         background-color: #39f;\
@@ -158,20 +164,28 @@ var createStyleContexMenu = function () {
     }\
     menuitem{\
         display: block;\
-        padding: 0 .5em\
+        padding: 0 .5em;\
     }\
     \
     ';
 
-    document.querySelectorAll('menu[type="context"]').forEach(function (menuRoot) {
+    if (style.styleSheet) {
+        style.styleSheet.cssText = stylHtml;
+    } else {
+        style.innerHTML = stylHtml;
+    }
+
+    document.getElementsByTagName('head')[0].appendChild(style);
+
+    Array.prototype.forEach.call(document.querySelectorAll('menu[type="context"]'), function (menuRoot) {
         setOnContextMenu(menuRoot);
-        menuRoot.querySelectorAll('menuitem').forEach(function (menuitem) {
+        Array.prototype.forEach.call(menuRoot.querySelectorAll('menuitem'), function (menuitem) {
             var label = menuitem.getAttribute('label');
 
             addMaxWidth(menuitem.parentElement, label.length);
             menuitem.innerHTML = label;
         });
-        menuRoot.querySelectorAll('menu').forEach(function (menu) {
+        Array.prototype.forEach.call(menuRoot.querySelectorAll('menu'), function (menu) {
             var menuitem = document.createElement('menuitem');
             var div = document.createElement('div');
             var label = menu.getAttribute('label');
@@ -193,27 +207,61 @@ function addMaxWidth(parent, newLength) {
 function setOnContextMenu(menu) {
     var menuId = menu.getAttribute('id');
     var targets = document.querySelectorAll('[contextmenu=' + menuId + ']');
+    var onClick = function () {
+        menu.style.display = 'none';
+    };
 
-    targets.forEach(function (target) {
+    Array.prototype.forEach.call(targets, function (target) {
         target.setAttribute('oncontextmenu', 'return btr.onContextMenuClick(event, ' + menuId + ')');
     });
 
-    document.addEventListener('click', function () {
-        menu.style.display = 'none';
-    });
+    if (document.addEventListener) {
+        document.addEventListener("click", onClick, false);
+    } else {
+        document.attachEvent("onclick", onClick);
+    }
 }
 
 btr.onContextMenuClick = function (e, menu) {
+    var scrollOffsets = getScrollOffsets();
+
     if (menu && menu.style) {
-        menu.style.left = e.clientX + window.pageXOffset + 'px';
-        menu.style.top = e.clientY + window.pageYOffset + 'px';
+        menu.style.left = e.clientX + scrollOffsets.x + 'px';
+        menu.style.top = e.clientY + scrollOffsets.y + 'px';
         menu.style.display = 'block';
     }
 
-    e.stopPropagation();
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    } else {
+        e.cancelBubble = true;
+    }
 
     return false;
 };
+
+function getScrollOffsets() {
+    var doc = window.document;
+
+    if (window.pageXOffset != null) {
+        return {
+            x: window.pageXOffset,
+            y: window.pageYOffset
+        };
+    }
+
+    if (document.compatMode === "CSS1Compat") {
+        return {
+            x: doc.documentElement.scrollLeft,
+            y: doc.documentElement.scrollTop
+        };
+    }
+
+    return {
+        x: doc.body.scrollLeft,
+        y: doc.body.scrollTop
+    };
+}
 
 module.exports = utils.debounce(100, function () {
     if (!/Firefox/.test(window.navigator.userAgent)) {
@@ -333,7 +381,8 @@ function _getFilesFromHTML(htmlData) {
     var el = document.createElement('div');
     var getText = function (dataHTML) {
         el.innerHTML = (dataHTML || '').replace(/<\/div>/g, '</div>\n');
-        return el.textContent.replace(/\n\n/g, '');
+
+        return (el.innerText === undefined ? el.textContent : el.innerText).replace(/\n\n/g, '');
     };
 
     gistFiles.forEach(function (gistFile) {
@@ -380,9 +429,14 @@ function _loadIfNoVar(obj, callback) {
 function _loadOne(url, callback) {
     var handler = (url.indexOf('.css') === -1) ? _createScript.bind(this, url) : _createStyle.bind(this, url);
     var elem = handler(function () {
+        if (elem.readyState && elem.readyState !== "complete" && elem.readyState !== "loaded") {
+            return false;
+        }
+
         if (callback) {
             callback();
         }
+
         elem.parentNode.removeChild(elem);
     });
 
@@ -419,7 +473,7 @@ var loadJsonP = function (urlJsonFile, callback) {
 
     window['fun' + id] = function (data) {
         callback(data);
-        delete window['fun' + id];
+        window['fun' + id] = null;
     };
     load([urlJsonFile + '?callback=fun' + id]);
 };
@@ -536,7 +590,7 @@ module.exports = {
 
 },{}],9:[function(require,module,exports){
 var uniqId = function () {
-    return String.fromCharCode(65 + Math.floor(Math.random() * 26)) + Date.now();
+    return String.fromCharCode(65 + Math.floor(Math.random() * 26)) + (+(new Date));
 };
 
 var saveToJsonFile = function (data, filename) {
@@ -567,6 +621,48 @@ var debounce = function (ms, callback) {
         timeout = setTimeout(callback, ms);
     };
 };
+
+if (!Function.prototype.bind) {
+    Function.prototype.bind = function bind(scope) {
+        var
+            callback = this,
+            prepend = Array.prototype.slice.call(arguments, 1),
+            Constructor = function () {
+            },
+            bound = function () {
+                return callback.apply(
+                    this instanceof Constructor && scope ? this : scope,
+                    prepend.concat(Array.prototype.slice.call(arguments, 0))
+                );
+            };
+
+        Constructor.prototype = bound.prototype = callback.prototype;
+
+        return bound;
+    };
+}
+
+if (typeof Object !== "undefined" && !Object.keys) {
+    Object.keys = function keys(object) {
+        var buffer = [], key;
+
+        for (key in object) {
+            if (Object.prototype.hasOwnProperty.call(object, key)) {
+                buffer.push(key);
+            }
+        }
+
+        return buffer;
+    };
+}
+
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function forEach(callback, scope) {
+        for (var array = this, index = 0, length = array.length; index < length; ++index) {
+            callback.call(scope || window, array[index], index, array);
+        }
+    };
+}
 
 module.exports = {
     uniqId: uniqId,

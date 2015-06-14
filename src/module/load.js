@@ -24,9 +24,14 @@ function _loadIfNoVar(obj, callback) {
 function _loadOne(url, callback) {
     var handler = (url.indexOf('.css') === -1) ? _createScript.bind(this, url) : _createStyle.bind(this, url);
     var elem = handler(function () {
+        if (elem.readyState && elem.readyState !== "complete" && elem.readyState !== "loaded") {
+            return false;
+        }
+
         if (callback) {
             callback();
         }
+
         elem.parentNode.removeChild(elem);
     });
 
@@ -63,7 +68,7 @@ var loadJsonP = function (urlJsonFile, callback) {
 
     window['fun' + id] = function (data) {
         callback(data);
-        delete window['fun' + id];
+        window['fun' + id] = null;
     };
     load([urlJsonFile + '?callback=fun' + id]);
 };

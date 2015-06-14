@@ -109,7 +109,8 @@ function _getFilesFromHTML(htmlData) {
     var el = document.createElement('div');
     var getText = function (dataHTML) {
         el.innerHTML = (dataHTML || '').replace(/<\/div>/g, '</div>\n');
-        return el.textContent.replace(/\n\n/g, '');
+
+        return (el.innerText === undefined ? el.textContent : el.innerText).replace(/\n\n/g, '');
     };
 
     gistFiles.forEach(function (gistFile) {

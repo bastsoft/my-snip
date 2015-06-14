@@ -19,7 +19,7 @@ function _createMenu(targetSelector, obj) {
     menu.setAttribute('type', 'context');
     menu.setAttribute('id', id);
 
-    targets.forEach(function (target) {
+    Array.prototype.forEach.call(targets, function (target) {
         target.setAttribute('contextmenu', id);
         document.body.appendChild(menu);
     });
@@ -51,7 +51,12 @@ function _createMenuItem(label, callBack) {
     var menuitem = document.createElement('menuitem');
 
     menuitem.setAttribute('label', label);
-    menuitem.addEventListener('click', callBack, false);
+
+    if (document.addEventListener) {
+        menuitem.addEventListener("click", callBack, false);
+    } else {
+        menuitem.attachEvent("onclick", callBack);
+    }
 
     return menuitem;
 }

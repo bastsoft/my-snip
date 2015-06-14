@@ -1,8 +1,6 @@
 var utils = require('./utils.js');
 
-NodeList.prototype.forEach = Array.prototype.forEach;
-
-HTMLElement.prototype.wrap = function (elms) {
+Element.prototype.wrap = function (elms) {
     if (!elms.length) {
         elms = [elms];
     }
@@ -24,7 +22,10 @@ HTMLElement.prototype.wrap = function (elms) {
 };
 
 var createStyleContexMenu = function () {
-    document.getElementsByTagName('head')[0].appendChild(document.createElement('style')).innerHTML = ' \
+    var style = document.createElement('style');
+    style.type = 'text/css';
+
+    var stylHtml = ' \
     menu {\
         z-index: 2147483000;\
         position:absolute;\
@@ -36,7 +37,7 @@ var createStyleContexMenu = function () {
         font-size: 14px;\
     }\
     menu div{\
-        height:1em\
+        height:1em;\
     }\
     menuitem:hover{\
         background-color: #39f;\
@@ -58,20 +59,28 @@ var createStyleContexMenu = function () {
     }\
     menuitem{\
         display: block;\
-        padding: 0 .5em\
+        padding: 0 .5em;\
     }\
     \
     ';
 
-    document.querySelectorAll('menu[type="context"]').forEach(function (menuRoot) {
+    if (style.styleSheet) {
+        style.styleSheet.cssText = stylHtml;
+    } else {
+        style.innerHTML = stylHtml;
+    }
+
+    document.getElementsByTagName('head')[0].appendChild(style);
+
+    Array.prototype.forEach.call(document.querySelectorAll('menu[type="context"]'), function (menuRoot) {
         setOnContextMenu(menuRoot);
-        menuRoot.querySelectorAll('menuitem').forEach(function (menuitem) {
+        Array.prototype.forEach.call(menuRoot.querySelectorAll('menuitem'), function (menuitem) {
             var label = menuitem.getAttribute('label');
 
             addMaxWidth(menuitem.parentElement, label.length);
             menuitem.innerHTML = label;
         });
-        menuRoot.querySelectorAll('menu').forEach(function (menu) {
+        Array.prototype.forEach.call(menuRoot.querySelectorAll('menu'), function (menu) {
             var menuitem = document.createElement('menuitem');
             var div = document.createElement('div');
             var label = menu.getAttribute('label');
@@ -93,27 +102,61 @@ function addMaxWidth(parent, newLength) {
 function setOnContextMenu(menu) {
     var menuId = menu.getAttribute('id');
     var targets = document.querySelectorAll('[contextmenu=' + menuId + ']');
+    var onClick = function () {
+        menu.style.display = 'none';
+    };
 
-    targets.forEach(function (target) {
+    Array.prototype.forEach.call(targets, function (target) {
         target.setAttribute('oncontextmenu', 'return btr.onContextMenuClick(event, ' + menuId + ')');
     });
 
-    document.addEventListener('click', function () {
-        menu.style.display = 'none';
-    });
+    if (document.addEventListener) {
+        document.addEventListener("click", onClick, false);
+    } else {
+        document.attachEvent("onclick", onClick);
+    }
 }
 
 btr.onContextMenuClick = function (e, menu) {
+    var scrollOffsets = getScrollOffsets();
+
     if (menu && menu.style) {
-        menu.style.left = e.clientX + window.pageXOffset + 'px';
-        menu.style.top = e.clientY + window.pageYOffset + 'px';
+        menu.style.left = e.clientX + scrollOffsets.x + 'px';
+        menu.style.top = e.clientY + scrollOffsets.y + 'px';
         menu.style.display = 'block';
     }
 
-    e.stopPropagation();
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    } else {
+        e.cancelBubble = true;
+    }
 
     return false;
 };
+
+function getScrollOffsets() {
+    var doc = window.document;
+
+    if (window.pageXOffset != null) {
+        return {
+            x: window.pageXOffset,
+            y: window.pageYOffset
+        };
+    }
+
+    if (document.compatMode === "CSS1Compat") {
+        return {
+            x: doc.documentElement.scrollLeft,
+            y: doc.documentElement.scrollTop
+        };
+    }
+
+    return {
+        x: doc.body.scrollLeft,
+        y: doc.body.scrollTop
+    };
+}
 
 module.exports = utils.debounce(100, function () {
     if (!/Firefox/.test(window.navigator.userAgent)) {

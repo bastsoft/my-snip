@@ -8,21 +8,33 @@
 call context on me
 <div class="testDiv">test div</div>
 <input/>
+
 <p><textarea rows="10" cols="45" name="text"></textarea></p>
+
 <p><input type="submit" value="sub"></p>
 <input/>
+
 <p><textarea rows="10" cols="45" name="text"></textarea></p>
+
 <p><input type="submit" value="sub"></p>
 <script>
     var el = document.createElement('script');
-    el.onload = function () {
-        btr.loadGist({
-            url: 'https://gist.github.com/',
-            id: '11e76234c80c3ea46702',
-            file: 'main.js'
-        });
+
+    el.onload = el.onreadystatechange = function () {
+        if (el.readyState && el.readyState !== "complete" && el.readyState !== "loaded") {
+            return false;
+        }
+
+        if (window.btr) {
+            window.btr.loadGist({
+                url: 'https://gist.github.com/',
+                id: '11e76234c80c3ea46702',
+                file: 'main.js'
+            });
+        }
     };
-    document.head.appendChild(el).src = 'btr.js';
+
+    document.getElementsByTagName('head')[0].appendChild(el).src = 'btr.js';
 </script>
 
 </body>
