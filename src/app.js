@@ -1,19 +1,19 @@
-window.btr = {};
-var utils = require('./module/utils.js');
-var config = require('./module/config.js');
+var contextMenu = require('./module/contextMenu.js');
+var contextMenuPolyfill = require('./module/contextMenuPolyfill.js');
 var load = require('./module/load.js');
 var gist = require('./module/gist.js');
-var contextMenu = require('./module/contextMenu.js');
 var relay = require('./module/relay.js');
 var tumbler = require('./module/tumbler.js');
 
-utils.extend(window.btr, load);
-utils.extend(window.btr, gist);
-utils.extend(window.btr, contextMenu);
-utils.extend(window.btr, relay);
-utils.extend(window.btr, tumbler);
+exports.contextMenu = contextMenu;
+exports.onContextMenuClick = contextMenuPolyfill.onContextMenuClick;
+exports.load = load.load;
+exports.loadJsonP = load.loadJsonP;
+exports.loadGist = gist.loadGist;
+exports.functionGist = gist.functionGist;
+exports.relay = gist.relay;
+exports.tumbler = gist.tumbler;
 
-window.btr.save = function () {
-    utils.saveToJsonFile(btr.config.gists, 'save.json');
+exports.config = {
+    gistUrl: 'https://gist.github.com/'
 };
-window.btr.newConfig = config;

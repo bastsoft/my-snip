@@ -58,6 +58,4 @@ function createKeyStates(key, states) {
     return obj;
 }
 
-module.exports = {
-    relay: relay
-};
+module.exports = relay;

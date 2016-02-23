@@ -1,16 +1,6 @@
 var utils = require('./utils.js');
 var contextMenuPolyfill = require('./contextMenuPolyfill.js');
 
-var contextMenu = function (targetSelector, obj) {
-    if (typeof targetSelector === 'object') {
-        targetSelector.forEach(function (target) {
-            _createMenu(target, obj);
-        });
-    } else {
-        _createMenu(targetSelector, obj);
-    }
-};
-
 function _createMenu(targetSelector, obj) {
     var menu = _createMenuEl(obj);
     var id = utils.uniqId();
@@ -24,7 +14,7 @@ function _createMenu(targetSelector, obj) {
         document.body.appendChild(menu);
     });
 
-    contextMenuPolyfill();
+    contextMenuPolyfill.createStyleContexMenu();
 }
 
 function _createMenuEl(items) {
@@ -61,6 +51,12 @@ function _createMenuItem(label, callBack) {
     return menuitem;
 }
 
-module.exports = {
-    contextMenu: contextMenu
+module.exports = function (targetSelector, obj) {
+    if (typeof targetSelector === 'object') {
+        targetSelector.forEach(function (target) {
+            _createMenu(target, obj);
+        });
+    } else {
+        _createMenu(targetSelector, obj);
+    }
 };

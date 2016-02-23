@@ -33,6 +33,4 @@ var tumbler = function (states) {
     return obj;
 };
 
-module.exports = {
-    tumbler: tumbler
-};
+module.exports = tumbler;
