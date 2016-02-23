@@ -26,10 +26,17 @@ call context on me
         }
 
         if (window.btr) {
-            window.btr.loadGist({
-                url: 'https://gist.github.com/',
-                id: '11e76234c80c3ea46702',
-                file: 'main.js'
+//            window.btr.loadGist({
+//                url: 'https://gist.github.com/',
+//                id: '11e76234c80c3ea46702',
+//                file: 'main.js'
+//            });
+
+
+            btr.contextMenu('body', {
+                'test run': {
+                    'test2': alert.bind(null, 'hello world')
+                }
             });
         }
     };

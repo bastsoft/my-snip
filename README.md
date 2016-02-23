@@ -11,7 +11,7 @@ javascript:(function(){var el = document.createElement('script');
             'test run' : alert.bind(null, 'hello world')
         });
     };
-document.head.appendChild(el).src = 'https://cdn.rawgit.com/bastsoft/btr/v0.0.3/btr-min.js';})();
+document.head.appendChild(el).src = 'https://cdn.rawgit.com/bastsoft/btr/v0.1.0/btr.js';})();
 ```
 
 ## Template download gist (including for IE)
@@ -25,7 +25,7 @@ javascript:(function(){
         }
         btr.loadGist({ id: 'GIST_ID', file: 'GIST_FILE' });
     };
-    document.getElementsByTagName('head')[0].appendChild(el).src = 'https://cdn.rawgit.com/bastsoft/btr/v0.0.3/btr-min.js';
+    document.getElementsByTagName('head')[0].appendChild(el).src = 'https://cdn.rawgit.com/bastsoft/btr/v0.1.0/btr.js';
 })();
 ```
 
@@ -44,7 +44,7 @@ javascript:(function(){
         }
         btr.loadGist({ id: '11e76234c80c3ea46702', file: 'main.js' });
     };
-    document.getElementsByTagName('head')[0].appendChild(el).src = 'https://cdn.rawgit.com/bastsoft/btr/v0.0.3/btr-min.js';
+    document.getElementsByTagName('head')[0].appendChild(el).src = 'https://cdn.rawgit.com/bastsoft/btr/v0.1.0/btr.js';
 })();
 ```
 

@@ -117,7 +117,7 @@ function setOnContextMenu(menu) {
     }
 }
 
-btr.onContextMenuClick = function (e, menu) {
+function onContextMenuClick(e, menu) {
     var scrollOffsets = getScrollOffsets();
 
     if (menu && menu.style) {
@@ -158,8 +158,11 @@ function getScrollOffsets() {
     };
 }
 
-module.exports = utils.debounce(100, function () {
-    if (!/Firefox/.test(window.navigator.userAgent)) {
-        createStyleContexMenu();
-    }
-});
+module.exports = {
+    createStyleContexMenu: utils.debounce(100, function () {
+        if (!/Firefox/.test(window.navigator.userAgent)) {
+            createStyleContexMenu();
+        }
+    }),
+    onContextMenuClick: onContextMenuClick
+};
