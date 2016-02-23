@@ -1,6 +1,4 @@
 var load = require('./load.js');
-var newConfig = require('./config.js');
-var config = newConfig();
 
 var functionGist = function (fileName) {
     var returnFunction = null;
@@ -18,12 +16,11 @@ var loadGist = function (id, callback) {
     var file = id.file;
 
     if (id.url) {
-        newConfig({
-            gistUrl: id.url
-        });
+        btr.config.gistUrl = id.url
     }
 
     if (file) {
+        console.log('file', file);
         callback = function () {
             functionGist(file)();
         };
@@ -31,6 +28,7 @@ var loadGist = function (id, callback) {
 
     if (id.id) {
         id = id.id;
+        console.log('id', id);
     }
     loadGist._loadGistFromId(id, callback);
 };
@@ -44,7 +42,7 @@ loadGist._loadGistFromId = function (id, callback) {
 };
 
 function loadGistFrom(id, callback) {
-    if (config.gistUrl.indexOf('api') !== -1) {
+    if (btr.config.gistUrl.indexOf('api') !== -1) {
         loadGist._loadGistFromAPI(id, callback);
     } else {
         loadGist._loadGistFromJSONP(id, callback);
@@ -52,8 +50,9 @@ function loadGistFrom(id, callback) {
 }
 
 loadGist._loadGistFromJSONP = function (id, callback) {
-    load.loadJsonP(config.gistUrl + id + '.json', function (res) {
+    load.loadJsonP(btr.config.gistUrl + id + '.json', function (res) {
         var files = _getFilesFromHTML(res.div);
+        console.log('files : ', files);
         _addFilesToConfigGists(id, files);
         callback();
     });
@@ -61,8 +60,8 @@ loadGist._loadGistFromJSONP = function (id, callback) {
 
 loadGist._loadGistFromAPI = function (id, callback) {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('GET', config.gistUrl + id + '?' + (new Date()).getTime(), false);
-    xmlHttp.send( null );
+    xmlHttp.open('GET', btr.config.gistUrl + id + '?' + (new Date()).getTime(), false);
+    xmlHttp.send(null);
     _addFilesToConfigGists(id, JSON.parse(xmlHttp.responseText).files);
     callback();
 };
@@ -80,7 +79,7 @@ function findId(id) {
 }
 
 function searchGistID(callback) {
-    var gists = config.gists;
+    var gists = btr.config.gists;
 
     Object.keys(gists || {}).forEach(function (urlGist) {
         Object.keys(gists[urlGist] || {}).forEach(function (idGist) {
@@ -90,37 +89,33 @@ function searchGistID(callback) {
 }
 
 function _addFilesToConfigGists(id, files) {
-    if (!config.gists) {
-        config.gists = {};
+    if (!btr.config.gists) {
+        btr.config.gists = {};
     }
 
-    if (!config.gists[config.gistUrl]) {
-        config.gists[config.gistUrl] = {};
+    if (!btr.config.gists[btr.config.gistUrl]) {
+        btr.config.gists[btr.config.gistUrl] = {};
     }
 
-    if (!config.gists[config.gistUrl][id]) {
-        config.gists[config.gistUrl][id] = files;
+    if (!btr.config.gists[btr.config.gistUrl][id]) {
+        btr.config.gists[btr.config.gistUrl][id] = files;
     }
 }
 
 function _getFilesFromHTML(htmlData) {
-    var gistFiles = htmlData.split('<div class="gist-file">').slice(1);
     var files = {};
     var el = document.createElement('div');
-    var getText = function (dataHTML) {
-        el.innerHTML = (dataHTML || '').replace(/<\/div>/g, '</div>\n');
+    el.innerHTML = htmlData;
 
-        return (el.innerText === undefined ? el.textContent : el.innerText).replace(/\n\n/g, '');
-    };
+    var gistFiles = el.querySelectorAll('.gist-file .gist-data .file');
+    var gistMeta = el.querySelectorAll('.gist-file .gist-meta');
 
-    gistFiles.forEach(function (gistFile) {
-        var gistMeta = gistFile.split('<div class="gist-meta">');
-        var fileName = getText(gistMeta[1].split('</a>')[1] + '</a>').replace(/[\n  ]/g, '');
-
+    for (var i = 0; i < gistFiles.length; i++) {
+        var fileName = gistMeta[i].querySelectorAll('a')[1].innerText;
         files[fileName] = {
-            content: getText(gistMeta[0].split('<td class="line-data">')[1])
+            content: gistFiles[i].innerText.replace(/\n\n/g, '')
         };
-    });
+    }
 
     return files;
 }
