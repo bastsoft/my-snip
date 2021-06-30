@@ -1,49 +1,80 @@
-<!DOCTYPE html>
 <html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>BTR</title>
-</head>
-<body>
-call context on me
-<div class="testDiv">test div</div>
-<input/>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BTR - browser task runner</title>
+  </head>  
+  <body>
+    <h1>create your btr</h1>
 
-<p><textarea rows="10" cols="45" name="text"></textarea></p>
+    <label>
+      url btr script
+      <input id="btrUrl" type="text" value="http://localhost:8080/dist/btr.js" placeholder="btr url"/>
+    </label>
+    <fieldset>
+      <legend>
+        gist like snippet source
+      </legend>
+      <br/>
+      <label>
+        id gist
+        <input id="gistId" type="text" value="53fcccad851615ec4aa744c05b4d5dd0" placeholder="id gist"/>
+      </label>
+      <br/>
+      <label>
+        file from gist
+        <input id="gistFile" type="text" value="load.js" placeholder="file from gist"/>
+      </label>
+      <br/>
+      <button onclick="OnClickOpenGist()">Open Gist</button>
+      <button onclick="OnClickRunGist()">Run Gist</button>
+      <br/>
+      <button onclick="OnClickCreateGist()">Create link</button>
+      <br/>
+      <output id="gistOutput" >
+      </output>
+    </fieldset>
 
-<p><input type="submit" value="sub"></p>
-<input/>
+    <fieldset>
+      <legend>
+        load snippet by url
+      </legend>
+      <label>
+        url snippet
+        <input id="urlSnippet" type="text" value="http://localhost:8080/lib/exaple-menu1.js" placeholder="url snippet"/>
+      </label>
+      <br/>
+      <button onclick="loadModule()">loadModule</button>
+      <br/>
+      <button onclick="OnClickCreateLinkURL()">Create link</button>
+      <output id="urlOutput" >
+      </output>
+    </fieldset>
+    
 
-<p><textarea rows="10" cols="45" name="text"></textarea></p>
+    <script type="module">
+      import importGistId from "./lib/import-gist.js"
+      import "./src/btr.js";
 
-<p><input type="submit" value="sub"></p>
-<script>
-    var el = document.createElement('script');
+      window.OnClickOpenGist = ()=>{
+        window.open("https://gist.github.com/" + gistId.value);
+      };
 
-    el.onload = el.onreadystatechange = function () {
-        if (el.readyState && el.readyState !== "complete" && el.readyState !== "loaded") {
-            return false;
-        }
+      window.OnClickRunGist = () => {
+        btr.loadGist({ id: gistId.value, file: gistFile.value });
+      };
 
-        if (window.btr) {
-//            window.btr.loadGist({
-//                url: 'https://gist.github.com/',
-//                id: '11e76234c80c3ea46702',
-//                file: 'main.js'
-//            });
+      window.OnClickCreateGist = () => {
+        gistOutput.value = `javascript:(function(){var%20el=document.createElement('script');el.onload=function(){btr.loadGist({id:'${gistId.value}',file:'${gistFile.value}'});};%20document.head.appendChild(el).src='${btrUrl.value}';})();`;
+      }
 
+      window.loadModule = () => {
+        btr.loadModule(urlSnippet.value);
+      }
 
-            btr.contextMenu('body', {
-                'test run': {
-                    'test2': alert.bind(null, 'hello world')
-                }
-            });
-        }
-    };
-
-    document.getElementsByTagName('head')[0].appendChild(el).src = 'btr.js';
-</script>
-
-</body>
+      window.OnClickCreateLinkURL = () => {
+        urlOutput.value = `javascript:(function(){var%20el=document.createElement('script');el.onload=function(){btr.loadModule('${urlSnippet.value}');};%20document.head.appendChild(el).src='${btrUrl.value}';})();`;
+      }
+    </script>
+  </body>
 </html>
-
