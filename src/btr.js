@@ -6,10 +6,18 @@ import inquirer from "../web/inquirer-ui.js";
 import {fetchjsonp} from "../web/fetch.js";
 
 window.btr = {};
+const cy = getCy(Queue);
+
+Object.defineProperty(window, "cy", {
+    get: function () {
+        cy.initEl(document);
+
+        return cy;
+    }
+});
 
 btr.context = {
     importGistId,
-    cy : getCy(Queue),
     inquirer,
     fetchjsonp,
     document
@@ -17,7 +25,7 @@ btr.context = {
 
 btr.loadGist = function(data){
     importGistId(fetchjsonp, document, data.id).then(gists => {
-        const load = new Function('{ importGistId, cy, inquirer, fetchjsonp, document}',  gists[data.file].text);
+        const load = new Function('{ importGistId, inquirer, fetchjsonp, document}',  gists[data.file].text);
         load(btr.context);
     });
 };
