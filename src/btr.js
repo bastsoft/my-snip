@@ -13,7 +13,8 @@ Object.defineProperty(window, "cy", {
         cy.initEl(document);
 
         return cy;
-    }
+    },
+    configurable: true
 });
 
 btr.context = {
