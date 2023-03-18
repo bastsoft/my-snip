@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>snip</title>
+  </head>
+  <body>
+    <h1>create your snip link</h1>
+
+    <fieldset>
+      <legend>
+        test
+      </legend>
+      <label>
+        gist id
+        <input id="inputGistId" value="7c314e6ce97b044a8305f0daa3ffe0f0" type="text" placeholder="id"/>
+      </label>
+      <br/>
+      <label>
+        gist file
+        <input id="inputGistFile" value="snippets.js" type="text" placeholder="file"/>
+      </label>
+      <br/>
+      <button onclick="OnClickGist()">OnClickGist</button>
+      <br/>
+      <label>
+        local url
+        <input id="inputUrl" value="/public/snippets.js" type="text" placeholder="local url"/>
+      </label>
+      <button onclick="OnClickUrl()">OnClickUrl</button>
+    </fieldset>    
+    
+    <script type="module">
+      import snip from "./index.js";
+
+      window.OnClickGist = ()=>{
+        snip.loadGist({
+          id: inputGistId.value,
+          file: inputGistFile.value
+        });
+      }
+
+      window.OnClickUrl = () =>{
+        snip.load(inputUrl.value)
+      }
+    </script>
+  </body>
+</html>
