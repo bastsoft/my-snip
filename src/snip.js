@@ -26,8 +26,15 @@ export default {
   loadGist(data){
     importGistId(fetchjsonp, document, data.id).then(gists => {
       const js = encodeURIComponent(gists[data.file].text);
-  
-      this.load('data:text/javascript;charset=utf-8,' + js);
+      const script = document.createElement('script');
+
+      script.type = 'module';
+      script.innerHTML = `snip.load(\`data:text/javascript;charset=utf-8,${js}\`);`;
+      console.log(script);
+      document.getElementsByTagName('head')[0].appendChild(script);
+      script.parentNode.removeChild(script);
+
+      //this.load('data:text/javascript;charset=utf-8,' + js);
     });
   },
 };

@@ -31,8 +31,9 @@
     </fieldset>    
     
     <script type="module">
-      import snip from "./index.js";
+      import snip from "./snip.js";
 
+      window.snip = snip;
       window.OnClickGist = ()=>{
         snip.loadGist({
           id: inputGistId.value,
