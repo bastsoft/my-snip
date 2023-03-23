@@ -1,6 +1,5 @@
 # snip for snippet 
 
-
 ## Simplest example
 
 ```js
@@ -8,17 +7,15 @@ javascript:(function(){var el = document.createElement('script');
     el.onload = function (){
         snip.loadGist({ id: "7c314e6ce97b044a8305f0daa3ffe0f0", file: "snippets.js" });
     };
-document.head.appendChild(el).src = 'https://cdn.jsdelivr.net/gh/bastsoft/snip@1.1.3/dist/snip.js';})();
+document.head.appendChild(el).src = 'https://cdn.jsdelivr.net/gh/bastsoft/snip@1.1.6/dist/snip.js';})();
 ```
 
-## for local test
-
-`serve ./dist`
+## for local snippets
 
 ```js
 javascript:(function(){var el = document.createElement('script');
     el.onload = function (){
-        snip.loadGist({ id: "7c314e6ce97b044a8305f0daa3ffe0f0", file: "snippets.js" });
+        snip.load(window.location.origin  + "/snippets.js")
     };
-document.head.appendChild(el).src = 'http://localhost:3000/snip.js';})();
+document.head.appendChild(el).src = 'https://cdn.jsdelivr.net/gh/bastsoft/snip@1.1.6/dist/snip.js';})();
 ```
