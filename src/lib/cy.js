@@ -125,10 +125,6 @@ export default function(Queue){
           const elText = (el.innerText || "").toLowerCase();
           const text = (content || "").toLowerCase();
 
-          if(cyCommandsDebug){
-            console.log("contains : ", elText, text, elText.indexOf(text));
-          }
-
           return  elText.indexOf(text) > -1; 
         });
         resolve();

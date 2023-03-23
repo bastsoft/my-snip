@@ -15,7 +15,7 @@ document.head.appendChild(el).src = 'https://cdn.jsdelivr.net/gh/bastsoft/snip@1
 ```js
 javascript:(function(){var el = document.createElement('script');
     el.onload = function (){
-        snip.load(window.location.origin  + "/snippets.js")
+        snip.load(window.location.origin  + "/snippets.js?" + Math.random())
     };
 document.head.appendChild(el).src = 'https://cdn.jsdelivr.net/gh/bastsoft/snip@1.1.6/dist/snip.js';})();
 ```
