@@ -18,23 +18,16 @@ Object.defineProperty(window, "cy", {
 
 export default {
   load(url){
-    import(url).then((res)=>{
+    import(/*webpackIgnore: true*/url).then((res)=>{
       const snippets = res.default;
       createMenu(snippets);
     });
   },
   loadGist(data){
     importGistId(fetchjsonp, document, data.id).then(gists => {
-      const js = encodeURIComponent(gists[data.file].text);
-      const script = document.createElement('script');
-
-      script.type = 'module';
-      script.innerHTML = `snip.load(\`data:text/javascript;charset=utf-8,${js}\`);`;
-      console.log(script);
-      document.getElementsByTagName('head')[0].appendChild(script);
-      script.parentNode.removeChild(script);
-
-      //this.load('data:text/javascript;charset=utf-8,' + js);
+      const js = gists[data.file].text;
+      const objectURL = URL.createObjectURL(new Blob([js], { type: 'text/javascript' }));
+      this.load(objectURL);
     });
   },
 };
