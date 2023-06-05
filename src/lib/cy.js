@@ -31,7 +31,8 @@ export default function(Queue){
   queue.Commands.add("then", function(callback) {
     return new Promise((resolve, reject) => {
       try {
-        callback();
+        const context = this;
+        callback(context.el);
         resolve();
       }
       catch (err) {
