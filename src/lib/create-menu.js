@@ -35,11 +35,16 @@ export default function (snippets) {
   const _answers = {};
   function _resolveCallback(answ) {
     const arr = answ.keyname.split("▷");
+    let lastThis = snippets;
     const callback = arr.reduce((acc, item) => {
-      return acc[item];
+      const curLavel = acc[item];
+      if(typeof(curLavel) === 'function'){
+        lastThis = acc;
+      }
+      return curLavel;
     }, snippets);
 
-    callback();
+    callback.call(lastThis);
   }
   topMenu.setAttribute("id", elemId);
   topMenu.setAttribute(

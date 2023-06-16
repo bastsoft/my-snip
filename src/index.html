@@ -35,14 +35,16 @@
 
       window.snip = snip;
       window.OnClickGist = ()=>{
-        snip.loadGist({
+        snip({
           id: inputGistId.value,
           file: inputGistFile.value
         });
       }
 
       window.OnClickUrl = () =>{
-        snip.load(inputUrl.value)
+        snip({
+          url: inputUrl.value
+        })
       }
     </script>
   </body>

@@ -6,7 +6,11 @@ const snippets = {
 		alert("step2");
 	},
   step3:{
-    'deep1'() {
+    'deep0':function(){
+      this['deep1']();
+      this['deep2']();
+    },
+    'deep1':() => {
       alert("deep1");
     },
     'deep2'() {

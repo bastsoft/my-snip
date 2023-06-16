@@ -1,6 +1,6 @@
 {
   "name": "snip",
-  "version": "2.0",
+  "version": "2.1",
   "scripts": {
     "build": "webpack --mode production --output-filename snip.js",
     "serve": "serve ./src"
