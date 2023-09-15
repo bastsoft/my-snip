@@ -1,51 +1,166 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
   <head>
-    <meta charset="utf-8"/>
-    <title>snip</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@3.0.5/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <h1>create your snip link</h1>
+    <div id="app"></div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.0.5/dist/vuetify.min.js"></script>
+    <script type="text/x-template" id="app-template">
+      <v-app>
+        <v-card
+          class="mx-auto"
+          width="400px"
+        >
+          <v-card-title>
+            Создайте bookmarklet для snip.js
+          </v-card-title>
+          <v-card-subtitle>
 
-    <fieldset>
-      <legend>
-        test
-      </legend>
-      <label>
-        gist id
-        <input id="inputGistId" value="7c314e6ce97b044a8305f0daa3ffe0f0" type="text" placeholder="id"/>
-      </label>
-      <br/>
-      <label>
-        gist file
-        <input id="inputGistFile" value="snippets.js" type="text" placeholder="file"/>
-      </label>
-      <br/>
-      <button onclick="OnClickGist()">OnClickGist</button>
-      <br/>
-      <label>
-        local url
-        <input id="inputUrl" value="/public/snippets.js" type="text" placeholder="local url"/>
-      </label>
-      <button onclick="OnClickUrl()">OnClickUrl</button>
-    </fieldset>    
-    
-    <script type="module">
-      import snip from "./snip.js";
+          <v-btn
+            small
+            @click="showPrimer = !showPrimer"
+          >
+          или воспользуйтесь примерами
+          </v-btn>
+          </v-card-subtitle>
+          <v-expand-transition>
+            <div v-show="showPrimer">
+              <v-divider></v-divider>
 
-      window.snip = snip;
-      window.OnClickGist = ()=>{
-        snip({
-          id: inputGistId.value,
-          file: inputGistFile.value
-        });
-      }
+              <v-card-text>
+                <v-btn text @click="setGistExample()">пример gist</v-btn>
+                <v-btn text @click="setLocalExample()">пример локальный файл</v-btn>
+              </v-card-text>
+            </div>
+          </v-expand-transition>
 
-      window.OnClickUrl = () =>{
-        snip({
-          url: inputUrl.value
-        })
-      }
+          <v-card-content>
+            <v-radio-group
+              v-model="typeSnip"
+            >
+              <v-radio label="ES modules" value="module"></v-radio>
+              <v-radio label="Gist" value="gist"></v-radio>
+            </v-radio-group>
+
+            <div v-if="typeSnip === 'module'">
+              <v-text-field label="url" v-model="url"></v-text-field>
+              <v-switch label="из локального проекта?" v-model="isLocalUrl"></v-switch>
+              
+            </div>
+            
+            <div v-if="typeSnip === 'gist'">
+              <v-text-field label="id" v-model="gistid"></v-text-field>
+              <v-text-field label="имя файла" v-model="fileName"></v-text-field>
+            </div>
+
+            <v-switch label="будут env?" v-model="isEnv"></v-switch>
+
+            <v-textarea v-if="isEnv" label="env object" v-model="envObject"></v-textarea>
+
+            <pre style="font-size: 10px;">{{tempalteSnippet()}}</pre>
+          </v-card-content>
+          <v-card-actions>
+            <v-btn text @click="clickCopyLink()">скопировать</v-btn>
+            <v-btn text @click="testLink()">протестировать</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-app>
+    </script>
+    <script>
+      const { createApp } = Vue;
+      const { createVuetify } = Vuetify;
+
+      const vuetify = createVuetify();
+
+      const app = createApp({
+        template: "#app-template",
+        data: () => ({
+          typeSnip: "gist",
+          showPrimer: false,
+          url: "",
+          gistid: "",
+          fileName: "main.js",
+          envObject: JSON.stringify({
+            TOKEN: "",
+          }, null, 4),
+          isLocalUrl: false,
+          isEnv: false,
+        }),
+        methods: {
+          setGistExample(){
+            this.typeSnip = "gist";
+            this.gistid = "7c314e6ce97b044a8305f0daa3ffe0f0";
+            this.fileName = "snippets.js";
+          },
+          setLocalExample(){
+            this.typeSnip = "module";
+            this.url = "/public/snippets.js";
+            this.isLocalUrl = true;
+          },
+          clickCopyLink() {
+            window.navigator.clipboard
+              .writeText(this.tempalteSnippet())
+              .then(() => {
+                alert('Скопирован bookmarklet');
+              })
+              .catch((err) => {
+                alert('Что то пошло не так');
+              });
+          },
+          testLink(){
+            window.location  = this.tempalteSnippet();
+          },
+          getSnipObjGist(){
+            return {
+              id: this.gistid,
+              file: this.fileName
+            };
+          },
+          getSnipObjURL(){
+            const url = this.url;
+            const urlTmpl = this.isLocalUrl ? `"window.location.origin  + "/${url}?" + Math.random()"` : url;
+            return {
+              url: urlTmpl
+            };
+          },
+          tempalteSnippet() {
+            const snipObjModule = this.typeSnip === 'module' ? this.getSnipObjURL() : this.getSnipObjGist();
+
+            if(this.isEnv){
+              let env = {};
+              try{
+                env = JSON.parse(this.envObject);
+              }catch(e){
+                //console.error(e);
+              }
+              snipObjModule.env = env;
+            }
+
+            console.log(JSON.stringify(snipObjModule));
+
+            return `
+javascript:(function(){
+    var el = document.createElement('script');    
+    el.onload = function (){
+        snip(${JSON.stringify(snipObjModule).replace(/"\\"/g, "").replace(/\\""/g, "").replace(/\\"/g, '"')});  
+    };
+document.head.appendChild(el).src = "https://cdn.jsdelivr.net/gh/bastsoft/snip@2.1.0/dist/snip.js";
+})();
+`;
+          },
+        },
+      })
+        .use(vuetify)
+        .mount("#app");
     </script>
   </body>
 </html>
