@@ -20,7 +20,7 @@ function removeMenuById(id) {
 
 const elemId = "inquirer-ui-menu";
 
-export default function (snippets) {
+export default function (snippets, context) {
   const choices = [];
 
   makeFlatObject(snippets, choices, "");
@@ -44,7 +44,7 @@ export default function (snippets) {
       return curLavel;
     }, snippets);
 
-    callback.call(lastThis);
+    callback.call(lastThis, context);
   }
   topMenu.setAttribute("id", elemId);
   topMenu.setAttribute(
