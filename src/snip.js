@@ -1,24 +1,18 @@
 import importGistId from "./lib/import-gist.js"
-import Queue from "./lib/commands-queue.js";
-import getCy from "./lib/cy.js";
-
 import createMenu from "./lib/create-menu.js";
 import fetchjsonp from "./lib/fetchjsonp.js";
+import apiCy from "./lib/api/api-cy.js";
+import apiPlaywrite from "./lib/api/api-playwrite.js";
 
-const cy = getCy(Queue);
-
-Object.defineProperty(window, "cy", {
-    get: function () {
-        cy.initEl(document);
-
-        return cy;
-    },
-    configurable: true
-});
-
+const logger = {
+  log(){
+    console.log(...arguments);
+  }
+};
 let env = {};
-window.Cypress = {};
-window.Cypress.env = function(name, value){
+
+const context = {};
+const setEnv = function(name, value){
   if(!name){
     return env;
   }
@@ -36,10 +30,17 @@ window.Cypress.env = function(name, value){
   }
 };
 
+context.cy = apiCy.mount(window.document, logger);
+context.Cypress = {
+  env: setEnv
+};
+
+context.page = apiPlaywrite.mount(window.document, logger);
+
 function load(url){
   import(/*webpackIgnore: true*/url).then((res)=>{
     const snippets = res.default;
-    createMenu(snippets);
+    createMenu(snippets, context);
   });
 }
 
@@ -61,6 +62,6 @@ export default function(payload){
   }
 
   if(payload.env){
-    window.Cypress.env(payload.env);
+    setEnv(payload.env);
   }
 };
