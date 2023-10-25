@@ -9,6 +9,7 @@ function mount(element, logger) {
   {
     initEl: api.initEl,
     then: api.then,
+    
     locator(selector){
       return api.get(selector);
     },
