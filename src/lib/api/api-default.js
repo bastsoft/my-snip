@@ -1,9 +1,46 @@
-  let currentEl = null;
+let currentEl = null;
+let defaultCommandTimeout = 4000;
 
-  const getDefaultApi = function (logger){
-    return {
+const getDefaultApi = function (logger){
+  const waitElArr = function(methodLog, findElArr, options){
+    let ms = defaultCommandTimeout;
+
+    if((options || {}).timeout){
+      ms = options.timeout;
+    }
+
+    return new Promise((resolve, reject) => {
+      let waited = 0;
+      let startTime = Date.now();
+      let timeOutId = null;
+      logger.log("wait " + methodLog);
+
+      (function waitElem(){
+        timeOutId = setTimeout(() => {
+          let elArr = findElArr();
+
+          const isFind = (elArr.length > 0) && elArr[0].getClientRects().length;
+
+          if (waited >= ms || isFind) {
+            clearTimeout(timeOutId);
+            if(isFind){
+                logger.log("found " + methodLog);
+                currentEl = elArr;
+                resolve();
+            }else{
+                reject();
+            }
+          } else {
+            waited = Date.now() - startTime;
+            waitElem();
+          }
+        }, 0);
+      })();
+    });
+  };
+
+  return {
     initEl: async el => {
-      logger.log("initEl");
       currentEl = [el];
     },
     then: (resolve) => resolve(currentEl),
@@ -12,67 +49,23 @@
       logger.log(message);
     },
     wait: async (time) => await new Promise((resolve) => setTimeout(resolve, time)),
-    get: (selector) => {
-      return new Promise((resolve, reject) => {
-        let ms = 3000;
-        let waited = 0;
-        let startTime = Date.now();
-        let timeOutId = null;
-        logger.log("get wait: ", selector);
-    
-        (function waitElem(){
-          timeOutId = setTimeout(() => {
-            let elArr = [...currentEl[0].querySelectorAll(selector)];
-            const isFind = (elArr.length > 0);
-            if (waited >= ms || isFind) {
-              clearTimeout(timeOutId);
-              if(isFind){
-                  logger.log("get found: ", selector);
-                  currentEl = elArr;
-                  resolve();
-              }else{
-                  reject();
-              }
-            } else {
-              waited = Date.now() - startTime;
-              waitElem();
-            }
-          }, 0);
-        })();
-      });
+    get: (selector, options) => {
+      return waitElArr(
+        "get " + selector,
+        ()=>[...currentEl[0].querySelectorAll(selector)],
+        options
+      );
     },
-    contains: (selector, content) => {
-      return new Promise((resolve, reject) => {
-        let ms = 3000;
-        let waited = 0;
-        let startTime = Date.now();
-        let timeOutId = null;
-        logger.log("contains wait: ", selector, content);
-    
-        (function waitElem(){
-          timeOutId = setTimeout(() => {
-            let elArr = [...currentEl[0].querySelectorAll(selector)].filter(el => {
-              const elText = (el.innerText || "").toLowerCase();
-              const text = (content || "").toLowerCase();
-              return elText.indexOf(text) > -1; 
-            });
-            const isFind = (elArr.length > 0);
-            if (waited >= ms || isFind) {
-              clearTimeout(timeOutId);
-              if(isFind){
-                  logger.log("contains found: ", selector, content);
-                  currentEl = elArr;
-                  resolve();
-              }else{
-                  reject();
-              }
-            } else {
-              waited = Date.now() - startTime;
-              waitElem();
-            }
-          }, 0);
-        })();
-      });
+    contains: (selector, content, options) => {
+      return waitElArr(
+        "contains " + selector + " " + content,
+        ()=>[...currentEl[0].querySelectorAll(selector)].filter(el => {
+          const elText = (el.innerText || "").toLowerCase();
+          const text = (content || "").toLowerCase();
+          return elText.indexOf(text) > -1; 
+        }),
+        options
+      );
     },
     find: async (selector) => {
       const el = [...currentEl[0].querySelectorAll(selector)];
@@ -111,8 +104,7 @@
       currentEl[0].dispatchEvent(evt);
     },
     trigger: async eventName => {
-      const evt = new Event(eventName);
-      currentEl[0].dispatchEvent(evt);
+      currentEl[0].dispatchEvent(new Event(eventName));
     },  
     focus: async () => {
       currentEl[0].dispatchEvent(new CustomEvent("focus", { bubbles: true }));
@@ -136,4 +128,4 @@
   };
 };
 
-  export default getDefaultApi;
+export default getDefaultApi;

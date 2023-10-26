@@ -33,8 +33,8 @@ export default class Queue {
     if (this._queueAsynch.length && !this.isRunAsynch) {
       this.isRunAsynch = true;
       const curFunction = this._queueAsynch.shift();
-
-      curFunction().then(() => {
+      
+      (curFunction() || (async ()=>{})()).then(() => {
         this.isRunAsynch = false;
         this.runAsynch();
       });
@@ -43,26 +43,15 @@ export default class Queue {
   
   run() {
     if (this._queue.length && !this.isRun) {
-        this.isRun = true;
-        let isAsynch = false;
         const curFunction = this._queue.shift();
-        const result = curFunction();
-        
-        if(curFunction.name === "bound then"){
-          this.isAsynch = true;
-          isAsynch = true;
-        }
-
-        if((result || {}).then){
-          result.then(() => {
-            this.isAsynch = false;
-            this.isRun = false;
-            this.run();
-          });
-        }else{
-          this.isAsynch = false;
+        this.isRun = true;
+        this.isAsynch = curFunction.name === "bound then";
+       
+        curFunction().then(() => {
           this.isRun = false;
-        }
+          this.isAsynch = false;
+          this.run();
+        });
     }
   }
 };
