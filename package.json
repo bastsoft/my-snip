@@ -1,14 +1,30 @@
 {
-  "name": "snip",
-  "version": "2.2.1",
+  "name": "my-snip",
+  "version": "2.2.3",
+  "description": "This tool allows you to quickly prototype and develop a bookmarklet, aggregate snippets, and write user-flow scripts.",
+  "main": "index.js",
   "scripts": {
     "build": "webpack --mode production --output-filename snip.js",
     "serve": "serve ./src"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bastsoft/my-snip.git"
+  },
+  "keywords": [
+    "bookmarklet",
+    "snippets",
+    "userflow"
+  ],
+  "author": "Petr Laptev",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bastsoft/my-snip/issues"
+  },
+  "homepage": "https://bastsoft.github.io/my-snip",
   "devDependencies": {
-    "serve": "^14.2.0",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1"
+    "serve": "^14.2.1",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   }
 }
