@@ -6,8 +6,8 @@ function getEl(selector){
   const parent = currentEl[0];
 
   if(selector.slice(0,2) === "//"){
-    let query = document.evaluate(selector, parent || document,
-        null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    const XPathResult = 7; //ORDERED_NODE_SNAPSHOT_TYPE
+    let query = document.evaluate(selector, parent || document, null, XPathResult, null);
     for (let i = 0, length = query.snapshotLength; i < length; ++i) {
         results.push(query.snapshotItem(i));
     }
@@ -36,7 +36,7 @@ const getDefaultApi = function (logger){
         timeOutId = setTimeout(() => {
           let elArr = findElArr();
 
-          const isFind = (elArr.length > 0) && elArr[0].getClientRects().length;
+          const isFind = elArr.length > 0;
 
           if (waited >= ms || isFind) {
             clearTimeout(timeOutId);
