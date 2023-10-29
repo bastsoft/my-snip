@@ -1,6 +1,23 @@
 let currentEl = null;
 let defaultCommandTimeout = 4000;
 
+function getEl(selector){
+  let results = [];
+  const parent = currentEl[0];
+
+  if(selector.slice(0,2) === "//"){
+    let query = document.evaluate(selector, parent || document,
+        null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    for (let i = 0, length = query.snapshotLength; i < length; ++i) {
+        results.push(query.snapshotItem(i));
+    }
+  }else{
+    results = [...parent.querySelectorAll(selector)];
+  }
+
+  return  results;
+}
+
 const getDefaultApi = function (logger){
   const waitElArr = function(methodLog, findElArr, options){
     let ms = defaultCommandTimeout;
@@ -52,14 +69,14 @@ const getDefaultApi = function (logger){
     get: (selector, options) => {
       return waitElArr(
         "get " + selector,
-        ()=>[...currentEl[0].querySelectorAll(selector)],
+        ()=>getEl(selector),
         options
       );
     },
     contains: (selector, content, options) => {
       return waitElArr(
         "contains " + selector + " " + content,
-        ()=>[...currentEl[0].querySelectorAll(selector)].filter(el => {
+        ()=>getEl(selector).filter(el => {
           const elText = (el.innerText || "").toLowerCase();
           const text = (content || "").toLowerCase();
           return elText.indexOf(text) > -1; 
