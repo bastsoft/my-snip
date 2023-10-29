@@ -64,4 +64,11 @@ export default function(payload){
   if(payload.env){
     setEnv(payload.env);
   }
+
+  if(payload.file){
+    payload.file.then((res)=>{
+      const snippets = res.default;
+      createMenu(snippets, context);
+    });
+  }
 };
