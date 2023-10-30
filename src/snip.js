@@ -30,6 +30,8 @@ const setEnv = function(name, value){
   }
 };
 
+context.env = setEnv;
+
 context.cy = apiCy.mount(window.document, logger);
 context.Cypress = {
   env: setEnv

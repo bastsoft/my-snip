@@ -69,8 +69,8 @@
             <pre style="font-size: 10px;">{{tempalteSnippet()}}</pre>
           </v-card-content>
           <v-card-actions>
+            <v-btn :href="tempalteSnippet()">my-snip ссылка</v-btn>
             <v-btn text @click="clickCopyLink()">скопировать</v-btn>
-            <v-btn text @click="testLink()">протестировать</v-btn>
           </v-card-actions>
         </v-card>
       </v-app>
@@ -133,6 +133,8 @@
             };
           },
           tempalteSnippet() {
+            //const lib = "http://localhost:3000/dist/snip.js";
+            const lib = "https://cdn.jsdelivr.net/gh/bastsoft/my-snip@2.2.5/dist/snip.js";
             const snipObjModule = this.typeSnip === 'module' ? this.getSnipObjURL() : this.getSnipObjGist();
 
             if(this.isEnv){
@@ -145,15 +147,13 @@
               snipObjModule.env = env;
             }
 
-            console.log(JSON.stringify(snipObjModule));
-
             return `
 javascript:(function(){
     var el = document.createElement('script');    
     el.onload = function (){
         snip(${JSON.stringify(snipObjModule).replace(/"\\"/g, "").replace(/\\""/g, "").replace(/\\"/g, '"')});  
     };
-document.head.appendChild(el).src = "https://cdn.jsdelivr.net/gh/bastsoft/my-snip@2.2.4/dist/snip.js";
+document.head.appendChild(el).src = "${lib}";
 })();
 `;
           },

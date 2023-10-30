@@ -50,6 +50,10 @@ const snippets = {
     });
 		cy.log("--end");
 	},
+  env({env}){
+    //console.log(env().TOKEN);
+    console.log(env("TOKEN"));
+  },
   step3:{
     'deep0':function(){
       this['deep1']();
