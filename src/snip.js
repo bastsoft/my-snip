@@ -67,7 +67,7 @@ export default function(payload){
     setEnv(payload.env);
   }
 
-  if(payload.file){
+  if(payload.file && !payload.id){
     payload.file.then((res)=>{
       const snippets = res.default;
       createMenu(snippets, context);
