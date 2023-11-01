@@ -4,20 +4,21 @@ window.snip = snip;
 
 export default {
   loadByLongPress(payload){
+    const timeout = payload.timeout || 5000;
     let timer;
-    let timeLongPress = 5000;
+    let timeLongPress = timeout;
   
     const handleTap = function (event) {
-      if (!["BODY", "DIV"].includes(event.target.nodeName)) {
+      if (payload.onlyFromTags && !payload.onlyFromTags.includes(event.target.nodeName)) {
         return;
       }
   
       timer = setTimeout(() => {
-        if (timeLongPress === 5000) {
+        if (timeLongPress === timeout) {
           timeLongPress = 500;
         }
 
-        alert("start mysnip");
+        //alert("start mysnip");
         snip(payload);
 
       }, timeLongPress);
