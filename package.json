@@ -1,6 +1,6 @@
 {
   "name": "my-snip",
-  "version": "2.2.6",
+  "version": "2.2.7",
   "description": "This tool allows you to quickly prototype and develop a bookmarklet, aggregate snippets, and write user-flow scripts.",
   "main": "index.js",
   "scripts": {

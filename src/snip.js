@@ -40,7 +40,7 @@ context.Cypress = {
 context.page = apiPlaywrite.mount(window.document, logger);
 
 function load(url){
-  import(/*webpackIgnore: true*/url).then((res)=>{
+  import(/* @vite-ignore *//*webpackIgnore: true*/url).then((res)=>{
     const snippets = res.default;
     createMenu(snippets, context);
   });
