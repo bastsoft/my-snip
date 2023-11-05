@@ -1,3 +1,5 @@
+import apiCy from "../src/lib/api/api-cy.js";
+
 export default function (Story, {render, userEvent}) {
   Object.keys(Story).forEach((keyStory) => {
     if (Story[keyStory].test) {
@@ -15,6 +17,7 @@ export default function (Story, {render, userEvent}) {
           container,
           userEvent,
           expect,
+          apiCy,
           step: async (nameStep, callback) => {
             await callback();
           },

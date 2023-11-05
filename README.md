@@ -12,9 +12,13 @@ use [the configurator](https://bastsoft.github.io/my-snip)
 
 
 ```js
-import mySnipt from "my-snip";
-
-mySnipt.loadByLongPress({
-  file: import("path-to-file")
-});
+  import("my-snip").then(({ default: mySnipt }) => {
+    mySnipt.loadByLongPress({
+      file: import("./snippets"),
+      //everything below is optional
+      env: { TOKEN: "" },
+      onlyFromTags: ["BODY", "DIV"],
+      timeout: 4000,
+    });
+  });
 ```
