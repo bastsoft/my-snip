@@ -2,7 +2,7 @@ function makeFlatObject(snippetsObj, ArrMain, preKey) {
   Object.keys(snippetsObj).reduce((acc, key1) => {
     if (typeof snippetsObj[key1] === "object") {
       makeFlatObject(snippetsObj[key1], acc, preKey + key1 + "▷");
-    } else {
+    } else if(!(preKey + key1).includes("_")) {
       acc.push(preKey + key1);
     }
 
