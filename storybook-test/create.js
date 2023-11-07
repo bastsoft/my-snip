@@ -1,4 +1,5 @@
 import apiCy from "../src/lib/api/api-cy.js";
+import apiPlaywrite from "../src/lib/api/api-playwrite.js";
 
 export default function ({userEvent, within, expect}) {
   return function(test, obj={}){
@@ -9,7 +10,8 @@ export default function ({userEvent, within, expect}) {
       ctx.userEvent = userEvent;
       ctx.expect = expect;
       ctx.apiCy = apiCy;
-      test(ctx);
+      ctx.apiPlaywrite = apiPlaywrite;
+      await test(ctx);
     };
 
     return obj;

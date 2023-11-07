@@ -6,6 +6,7 @@ This tool allows you to quickly prototype and develop a bookmarklet, aggregate s
 
 use [the configurator](https://bastsoft.github.io/my-snip)
 
+
 ## for local install
 
 `npm i -D my-snip`
@@ -21,4 +22,12 @@ use [the configurator](https://bastsoft.github.io/my-snip)
       timeout: 4000,
     });
   });
+```
+
+### use env in methods snip
+
+```js
+  "show token"({env}){
+    alert(env("TOKEN"));
+  },
 ```
