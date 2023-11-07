@@ -1,7 +1,7 @@
 import getDefaultApi from "./api-default.js";
 import createApiProperty from "./test-api-generator.js";
 
-function mount(element, logger) {
+function mount(element, logger={log(){}}) {
   const api =  getDefaultApi(logger);
 
   return createApiProperty( 

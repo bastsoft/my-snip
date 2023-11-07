@@ -1,4 +1,5 @@
 import apiCy from "../src/lib/api/api-cy.js";
+import apiPlaywrite from "../src/lib/api/api-playwrite.js";
 
 export default function (Story, {render, userEvent}) {
   Object.keys(Story).forEach((keyStory) => {
@@ -18,6 +19,7 @@ export default function (Story, {render, userEvent}) {
           userEvent,
           expect,
           apiCy,
+          apiPlaywrite,
           step: async (nameStep, callback) => {
             await callback();
           },
