@@ -151,7 +151,61 @@ const getDefaultApi = function (logger) {
       });
     },
     trigger: async (eventName) => {
-      currentEl[0].dispatchEvent(new Event(eventName));
+      let event = new Event(eventName);
+
+      if(eventName.indexOf("key") === 0){
+        event = new KeyboardEvent(eventName, {bubbles: true});
+      }
+
+      if(eventName.indexOf("mouse") === 0){
+        event = new MouseEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("touch") === 0){
+        event = new TouchEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("pointer") === 0){
+        event = new PointerEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("wheel") === 0){
+        event = new WheelEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("drag") === 0){
+        event = new DragEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("clipboard") === 0){
+        event = new ClipboardEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("composition") === 0){
+        event = new CompositionEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("input") === 0){
+        event = new InputEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("animation") === 0){
+        event = new AnimationEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("transition") === 0){
+        event = new TransitionEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("message") === 0){
+        event = new MessageEvent(eventName, {bubbles: true});
+      }
+
+      if (eventName.indexOf("storage") === 0){
+        event = new StorageEvent(eventName, {bubbles: true});
+      }
+
+      currentEl[0].dispatchEvent(event);
     },
     type: async (text) => {
       const value = text.replace(
