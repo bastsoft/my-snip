@@ -3,6 +3,7 @@ import createMenu from "./lib/create-menu.js";
 import fetchjsonp from "./lib/fetchjsonp.js";
 import apiCy from "./lib/api/api-cy.js";
 import apiPlaywrite from "./lib/api/api-playwrite.js";
+import createExpect from "./lib/expect.js";
 
 const logger = {
   log(){
@@ -38,6 +39,8 @@ context.Cypress = {
 };
 
 context.page = apiPlaywrite.mount(window.document, logger);
+
+context.expect = createExpect(apiPlaywrite, window.document);
 
 function load(url){
   import(/* @vite-ignore *//*webpackIgnore: true*/url).then((res)=>{
