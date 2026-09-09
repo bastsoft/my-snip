@@ -100,6 +100,9 @@ const getDefaultApi = function (logger) {
     last: async () => {
       currentEl = [currentEl[currentEl.length - 1]];
     },
+    first: async () => {
+      currentEl = currentEl.slice(0, 1);
+    },
     parent: async () => {
       currentEl = [currentEl[0].parentElement];
     },
@@ -227,6 +230,12 @@ const getDefaultApi = function (logger) {
       await new Promise((resolve) => setTimeout(resolve, time)),
     log: async (message) => {
       logger.log(message);
+    },
+    innerText: async () => {
+      return (currentEl[0] && currentEl[0].innerText) || "";
+    },
+    evaluate: async (fn, arg) => {
+      return await fn(arg);
     },
   };
 };

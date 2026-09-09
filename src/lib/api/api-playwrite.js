@@ -10,8 +10,15 @@ function mount(element, logger={log(){}}) {
     initEl: api.initEl,
     then: api.then,
     
-    locator(selector){
-      return api.get(selector);
+    locator(selector, options){
+      if(options && options.hasText){
+        return api.contains(selector, options.hasText, options);
+      }
+
+      return api.get(selector, options);
+    },
+    waitFor:(selector, options)=>{
+      return api.get(selector, options);
     },
     click: (selectorOrObject) =>{
       if(typeof(selectorOrObject) === "string"){
@@ -40,6 +47,12 @@ function mount(element, logger={log(){}}) {
     hover:()=>{
       return api.trigger("mouseover");
     },
+    focus:()=>{
+      return api.focus();
+    },
+    waitForTimeout:(ms)=>{
+      return api.wait(ms);
+    },
     selectOption:(valueOrTextorIndex)=>{
       return api.select(valueOrTextorIndex);
     },
@@ -67,6 +80,28 @@ function mount(element, logger={log(){}}) {
       if(options.name){
         return api.contains(selector, options.name)
       }
+    },
+    getByText:(text)=>{
+      return {
+        text,
+        find(){
+          const body = element.body || element;
+          const all = [...body.querySelectorAll("*")];
+          return all.filter((el) => {
+            const elText = (el.innerText || "").trim();
+            return elText.indexOf(text) > -1;
+          });
+        },
+      };
+    },
+    first(){
+      return api.first();
+    },
+    innerText(){
+      return api.innerText();
+    },
+    evaluate(fn, arg){
+      return api.evaluate(fn, arg);
     }
   }
 )

@@ -15,6 +15,16 @@ export default class Queue {
             
             return this;
           };
+      },
+      _addPromise(name, promiseFunction) {
+          this[name] = (...args) => {
+            return new Promise((resolve) => {
+              that.runThroughQueue(async () => {
+                const result = await promiseFunction.bind(that, ...args)();
+                resolve(result);
+              });
+            });
+          };
       }
     };
   }
