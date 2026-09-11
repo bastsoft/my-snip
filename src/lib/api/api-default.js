@@ -5,6 +5,10 @@ function getEl(selector) {
   let results = [];
   const parent = currentEl[0];
 
+  if (typeof selector !== "string") {
+    return results;
+  }
+
   if (selector.slice(0, 2) === "//") {
     const XPathResult = 7; //ORDERED_NODE_SNAPSHOT_TYPE
     let query = document.evaluate(

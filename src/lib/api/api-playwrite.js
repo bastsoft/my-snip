@@ -17,8 +17,13 @@ function mount(element, logger={log(){}}) {
 
       return api.get(selector, options);
     },
-    waitFor:(selector, options)=>{
-      return api.get(selector, options);
+    waitFor:(selectorOrOptions, options)=>{
+      if(typeof selectorOrOptions === "string"){
+        return api.get(selectorOrOptions, options);
+      }
+
+      // locator.waitFor({ state: 'visible' }) — ждём текущий элемент
+      return api.then(() => {});
     },
     click: (selectorOrObject) =>{
       if(typeof(selectorOrObject) === "string"){
