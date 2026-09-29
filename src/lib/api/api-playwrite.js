@@ -58,6 +58,9 @@ function mount(element, logger={log(){}}) {
     waitForTimeout:(ms)=>{
       return api.wait(ms);
     },
+    waitForResponse:()=>{
+      return Promise.resolve(null);
+    },
     selectOption:(valueOrTextorIndex)=>{
       return api.select(valueOrTextorIndex);
     },
