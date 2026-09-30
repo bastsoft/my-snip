@@ -18,10 +18,14 @@ export default class Queue {
       },
       _addPromise(name, promiseFunction) {
           this[name] = (...args) => {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
               that.runThroughQueue(async () => {
-                const result = await promiseFunction.bind(that, ...args)();
-                resolve(result);
+                try {
+                  const result = await promiseFunction.bind(that, ...args)();
+                  resolve(result);
+                } catch (error) {
+                  reject(error);
+                }
               });
             });
           };
@@ -43,8 +47,20 @@ export default class Queue {
     if (this._queueAsynch.length && !this.isRunAsynch) {
       this.isRunAsynch = true;
       const curFunction = this._queueAsynch.shift();
-      
-      (curFunction() || (async ()=>{})()).then(() => {
+      let result = null;
+
+      try {
+        result = curFunction();
+      } catch (error) {
+        // ошибка команды не должна навсегда останавливать очередь
+        console.error(error);
+      }
+
+      (result || (async ()=>{})()).then(() => {
+        this.isRunAsynch = false;
+        this.runAsynch();
+      }, (error) => {
+        console.error(error);
         this.isRunAsynch = false;
         this.runAsynch();
       });
@@ -56,14 +72,33 @@ export default class Queue {
         const curFunction = this._queue.shift();
         this.isRun = true;
         this.isAsynch = curFunction.name === "bound then";
-        const result = curFunction();
-        
+        let result = null;
+
+        try {
+          result = curFunction();
+        } catch (error) {
+          // ошибка команды (например, клик по ненайденному элементу)
+          // не должна навсегда останавливать очередь
+          console.error(error);
+          alert(String(error));
+        }
+
         if((result || {}).then){
           result.then(() => {
             this.isAsynch = false;
             this.isRun = false;
             this.run();
+          }, (error) => {
+            console.error(error);
+            alert(String(error));
+            this.isAsynch = false;
+            this.isRun = false;
+            this.run();
           });
+        } else if (this.isRun) {
+          this.isAsynch = false;
+          this.isRun = false;
+          this.run();
         }
     }
   }

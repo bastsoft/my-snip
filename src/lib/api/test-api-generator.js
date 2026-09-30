@@ -1,7 +1,8 @@
 
 import Queue from "./commands-queue.js";
 
-const promiseMethods = new Set(["innerText", "evaluate"]);
+// waitFor — как в Playwright возвращает промис: await locator.waitFor() реально ждёт
+const promiseMethods = new Set(["innerText", "evaluate", "waitFor"]);
 const directMethods = new Set(["getByText"]);
 
 export default function(mountElement, api){

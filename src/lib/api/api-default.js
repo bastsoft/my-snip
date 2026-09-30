@@ -1,9 +1,16 @@
 let currentEl = null;
+let lastFindElArr = () => [];
+// индексное сужение цепочки после get/contains: {index} для first/last/eq,
+// null — сужения не было (базовый запрос)
+let lastIndexOp = null;
 let defaultCommandTimeout = 4000;
 
 function getEl(selector) {
   let results = [];
-  const parent = currentEl[0];
+  // currentEl может быть пустым (предыдущий find не нашёл элемент,
+  // но waitFor продолжит поиск) — фолбэк на document, чтобы повторный
+  // запрос не падал с TypeError
+  const parent = (currentEl && currentEl[0]) || document;
 
   if (typeof selector !== "string") {
     return results;
@@ -28,8 +35,45 @@ function getEl(selector) {
   return results;
 }
 
+function isElVisible(el) {
+  if (!el || el.nodeType !== 1) {
+    return false;
+  }
+
+  // элемент скрыт, если сам или любой из предков display:none /
+  // visibility:hidden (display не наследуется — rect в реальном
+  // браузере был бы нулевым, но проверка предков надёжнее)
+  let node = el;
+
+  while (node && node.nodeType === 1) {
+    const style = window.getComputedStyle(node);
+
+    if (style.display === "none" || style.visibility === "hidden") {
+      return false;
+    }
+
+    node = node.parentElement;
+  }
+
+  const rect = el.getBoundingClientRect();
+
+  return rect.width > 0 && rect.height > 0;
+}
+
+function getElText(el) {
+  // в реальном браузере innerText всегда определён;
+  // в jsdom (storybook-тесты) его нет — фолбэк на textContent
+  if (typeof el.innerText !== "undefined") {
+    return el.innerText;
+  }
+
+  return el.textContent || "";
+}
+
 const getDefaultApi = function (logger) {
   const waitElArr = function (methodLog, findElArr, options) {
+    lastFindElArr = findElArr;
+    lastIndexOp = null;
     let ms = defaultCommandTimeout;
 
     if ((options || {}).timeout) {
@@ -79,7 +123,7 @@ const getDefaultApi = function (logger) {
         "contains " + selector + " " + content,
         () =>
           getEl(selector).filter((el) => {
-            const elText = (el.innerText || "").toLowerCase();
+            const elText = getElText(el).toLowerCase();
             const text = (content || "").toLowerCase();
             return elText.indexOf(text) > -1;
           }),
@@ -87,6 +131,7 @@ const getDefaultApi = function (logger) {
       );
     },
     eq: async (index) => {
+      lastIndexOp = { index };
       currentEl = currentEl.slice(index, index + 1);
     },
     find: async (selector) => {
@@ -102,9 +147,11 @@ const getDefaultApi = function (logger) {
       return waitElArr("get " + selector, () => getEl(selector), options);
     },
     last: async () => {
+      lastIndexOp = { index: -1 };
       currentEl = [currentEl[currentEl.length - 1]];
     },
     first: async () => {
+      lastIndexOp = { index: 0 };
       currentEl = currentEl.slice(0, 1);
     },
     parent: async () => {
@@ -118,14 +165,19 @@ const getDefaultApi = function (logger) {
     click: async () => {
       const { left: clientX, bottom: clientY } =
         currentEl[0].getBoundingClientRect();
-      let evt = new MouseEvent("click", {
+      const evtOptions = {
         button: 0,
         bubbles: true,
         cancelable: true,
         clientX,
         clientY,
-      });
-      currentEl[0].dispatchEvent(evt);
+      };
+
+      // реальный клик — это mousedown → mouseup → click: часть UI
+      // (например, саджесты адреса) слушает именно mousedown
+      currentEl[0].dispatchEvent(new MouseEvent("mousedown", evtOptions));
+      currentEl[0].dispatchEvent(new MouseEvent("mouseup", evtOptions));
+      currentEl[0].dispatchEvent(new MouseEvent("click", evtOptions));
     },
     rightclick: async () => {
       const { left: clientX, bottom: clientY } =
@@ -232,11 +284,94 @@ const getDefaultApi = function (logger) {
     },
     wait: async (time) =>
       await new Promise((resolve) => setTimeout(resolve, time)),
+    // locator.waitFor({ state, timeout }) — ждём элемент последнего locator/get.
+    // Важно: элемент уже спозиционирован цепочкой (first/last/eq) — его и ждём,
+    // чтобы последующие команды цепочки (click/fill) работали с ним же.
+    waitCurrent: (options) => {
+      const opts = options || {};
+      const state = opts.state || "visible";
+      const ms = opts.timeout || defaultCommandTimeout;
+      const prevEl = (currentEl && currentEl[0]) || null;
+
+      return new Promise((resolve, reject) => {
+        const startTime = Date.now();
+
+        (function waitCurrentEl() {
+          let isDone = false;
+
+          if (state === "hidden") {
+            // ждём, пока спозиционированный элемент исчезнет или спрячется
+            isDone = !prevEl || !isElVisible(prevEl);
+
+            if (isDone) {
+              currentEl = [];
+            }
+          } else if (state === "detached") {
+            isDone = !prevEl || !prevEl.isConnected;
+
+            if (isDone) {
+              currentEl = [];
+            }
+          } else {
+            // visible (по умолчанию) / attached
+            let candidate = null;
+
+            if (prevEl && prevEl.isConnected) {
+              candidate = prevEl;
+            } else {
+              // элемент ещё не найден (или устарел после ререндера) —
+              // повторяем запрос по селектору и применяем то же сужение цепочки
+              const elArr = lastFindElArr();
+
+              if (lastIndexOp) {
+                const index =
+                  lastIndexOp.index < 0
+                    ? elArr.length + lastIndexOp.index
+                    : lastIndexOp.index;
+
+                candidate = index >= 0 && index < elArr.length ? elArr[index] : null;
+              } else {
+                candidate = elArr[0] || null;
+              }
+            }
+
+            if (state === "attached") {
+              isDone = !!candidate;
+            } else {
+              isDone = !!candidate && isElVisible(candidate);
+            }
+
+            if (isDone) {
+              currentEl = [candidate];
+            }
+          }
+
+          if (isDone) {
+            logger.log("found waitFor " + state);
+            resolve(currentEl);
+          } else if (Date.now() - startTime >= ms) {
+            const message =
+              "waitFor: элемент не найден за " +
+              ms +
+              "мс (state: " +
+              state +
+              ")";
+            logger.log(message);
+            alert(message);
+            reject(new Error(message));
+          } else {
+            setTimeout(waitCurrentEl, 50);
+          }
+        })();
+      });
+    },
     log: async (message) => {
       logger.log(message);
     },
     innerText: async () => {
-      return (currentEl[0] && currentEl[0].innerText) || "";
+      const el = currentEl && currentEl[0];
+
+      return (el && getElText(el)) || "";
     },
     evaluate: async (fn, arg) => {
       return await fn(arg);
