@@ -22,8 +22,8 @@ function mount(element, logger={log(){}}) {
         return api.get(selectorOrOptions, options);
       }
 
-      // locator.waitFor({ state: 'visible' }) — ждём текущий элемент
-      return api.then(() => {});
+      // locator.waitFor({ state, timeout }) — реально ждём появления текущего элемента
+      return api.waitCurrent(selectorOrOptions);
     },
     click: (selectorOrObject) =>{
       if(typeof(selectorOrObject) === "string"){
@@ -96,7 +96,9 @@ function mount(element, logger={log(){}}) {
           const body = element.body || element;
           const all = [...body.querySelectorAll("*")];
           return all.filter((el) => {
-            const elText = (el.innerText || "").trim();
+            const elText = (typeof el.innerText !== "undefined"
+              ? el.innerText
+              : el.textContent || "").trim();
             return elText.indexOf(text) > -1;
           });
         },
